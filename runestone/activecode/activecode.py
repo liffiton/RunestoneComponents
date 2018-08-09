@@ -76,15 +76,7 @@ TEMPLATE_END = """
 """
 
 class ActivcodeNode(nodes.General, nodes.Element, RunestoneNode):
-    def __init__(self, content, **kwargs):
-        """
-
-        Arguments:
-        - `self`:
-        - `content`:
-        """
-        super(ActivcodeNode, self).__init__(name=content['name'], **kwargs)
-        self.ac_components = content
+    pass
 
 
 # self for these functions is an instance of the writer class.  For example
@@ -97,11 +89,11 @@ def visit_ac_node(self, node):
     #todo handle  'hidecode' not in node.ac_components:
     # todo:  handle if 'gradebutton' in node.ac_components: res += GRADES
 
-    node.delimiter = "_start__{}_".format(node.ac_components['divid'])
+    node.delimiter = "_start__{}_".format(node['ac_components']['divid'])
 
     self.body.append(node.delimiter)
 
-    res = TEMPLATE_START % node.ac_components
+    res = TEMPLATE_START % node['ac_components']
     self.body.append(res)
 
 
@@ -110,12 +102,12 @@ def depart_ac_node(self, node):
         etc and did not want to do all of the processing in visit_ac_node any finishing touches could be
         added here.
     '''
-    res = TEMPLATE_END % node.ac_components
+    res = TEMPLATE_END % node['ac_components']
     self.body.append(res)
 
 
-    addHTMLToDB(node.ac_components['divid'],
-                node.ac_components['basecourse'],
+    addHTMLToDB(node['ac_components']['divid'],
+                node['ac_components']['basecourse'],
                 "".join(self.body[self.body.index(node.delimiter) + 1:]))
 
     self.body.remove(node.delimiter)
@@ -370,7 +362,7 @@ config values (conf.py):
                 print("This should only affect the grading interface. Everything else should be fine.")
 
 
-        acnode = ActivcodeNode(self.options, rawsource=self.block_text)
+        acnode = ActivcodeNode(ac_components=self.options, rawsource=self.block_text)
         acnode.source, acnode.line = self.state_machine.get_source_and_line(self.lineno)
         self.add_name(acnode)    # make this divid available as a target for :ref:
 
