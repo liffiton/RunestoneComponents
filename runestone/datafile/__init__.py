@@ -28,7 +28,7 @@ from runestone.common.runestonedirective import RunestoneIdDirective, RunestoneN
 def setup(app):
     app.add_directive('datafile',DataFile)
 
-    app.add_stylesheet('datafile.css')
+    app.add_autoversioned_stylesheet('datafile.css')
 
     app.add_node(DataFileNode, html=(visit_df_node, None))
 
@@ -103,8 +103,8 @@ class DataFile(RunestoneIdDirective):
             ffpath = os.path.dirname(self.srcpath)
             print(self.srcpath, os.getcwd())
             filename = os.path.join(env.srcdir, ffpath, self.options['fromfile'])
-            with open(filename, 'r') as f:
-                self.content = [x[:-1] for x in f.readlines()]
+            with open(filename, 'rb') as f:
+                self.content = [x[:-1].decode('utf8') for x in f.readlines()]
 
         if 'cols' in self.options:
             # 1ch char width plus buffer = (cols*2+2)ch width

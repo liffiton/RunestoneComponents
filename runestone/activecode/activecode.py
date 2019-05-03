@@ -22,7 +22,7 @@ from docutils.parsers.rst import directives
 from .textfield import *
 from sqlalchemy import Table
 from runestone.server.componentdb import addQuestionToDB, addHTMLToDB, engine, meta
-from runestone.common.runestonedirective import (RunestoneIdDirective, RunestoneNode, 
+from runestone.common.runestonedirective import (RunestoneIdDirective, RunestoneNode,
     add_i18n_js, add_codemirror_css_and_js, add_skulpt_js)
 
 try:
@@ -40,20 +40,20 @@ def setup(app):
     app.add_config_value('activecode_div_class', "runestone explainer ac_section alert alert-warning", 'html')
     app.add_config_value('activecode_hide_load_history', False, 'html')
 
-    app.add_stylesheet('activecode.css')
+    app.add_autoversioned_stylesheet('activecode.css')
 
-    app.add_javascript('jquery.highlight.js')
-    app.add_javascript('bookfuncs.js')
+    app.add_autoversioned_javascript('jquery.highlight.js')
+    app.add_autoversioned_javascript('bookfuncs.js')
     add_codemirror_css_and_js(app,'xml','css','python','htmlmixed','javascript')
     add_i18n_js(app, {"en","sr-Cyrl"},"activecode-i18n")
     add_skulpt_js(app)
-    app.add_javascript('activecode.js')
-    app.add_javascript('clike.js')
-    app.add_javascript('timed_activecode.js')
+    app.add_autoversioned_javascript('activecode.js')
+    app.add_autoversioned_javascript('clike.js')
+    app.add_autoversioned_javascript('timed_activecode.js')
 
 
 
-    
+
 
     app.add_node(ActivcodeNode, html=(visit_ac_node, depart_ac_node))
 
@@ -68,7 +68,7 @@ TEMPLATE_START = """
 TEMPLATE_END = """
 <textarea data-component="activecode" id=%(divid)s data-lang="%(language)s" %(autorun)s
     %(hidecode)s %(include)s %(timelimit)s %(coach)s %(codelens)s %(enabledownload)s %(chatcodes)s
-    data-audio='%(ctext)s' %(sourcefile)s %(datafile)s %(stdin)s
+    data-audio='%(ctext)s' %(sourcefile)s %(datafile)s %(stdin)s %(tie)s %(nopair)s
     %(cargs)s %(largs)s %(rargs)s %(iargs)s %(gradebutton)s %(caption)s %(hidehistory)s>
 %(initialcode)s
 </textarea>
@@ -145,6 +145,7 @@ class ActiveCode(RunestoneIdDirective):
    :sourcefile: : source files (java, python2, python3)
    :available_files: : other additional files (java, python2, python3)
    :enabledownload: -- allow textfield contents to be downloaded as *.py file
+   :nopair: -- disable pair programming features
 
     If this is a homework problem instead of an example in the text
     then the assignment text should go here.  The assignment text ends with
@@ -154,7 +155,7 @@ class ActiveCode(RunestoneIdDirective):
     ====
     print("Hidden code, such as unit tests come after the four = signs")
 
-config values (conf.py): 
+config values (conf.py):
 
 - activecode_div_class - custom CSS class of the component's outermost div
 - activecode_hide_load_history - if True, hide the load history button
@@ -191,6 +192,8 @@ config values (conf.py):
         'linkargs': directives.unchanged,
         'interpreterargs': directives.unchanged,
         'runargs': directives.unchanged,
+        'tie': directives.unchanged,
+        'nopair': directives.flag
     })
 
 
@@ -278,6 +281,11 @@ config values (conf.py):
         else:
             self.options['codelens'] = 'data-codelens="true"'
 
+        if 'nopair' in self.options:
+            self.options['nopair'] = 'data-nopair="true"'
+        else:
+            self.options['nopair'] = ''
+
         if 'timelimit' not in self.options:
             self.options['timelimit'] = 'data-timelimit=25000'
         else:
@@ -308,6 +316,11 @@ config values (conf.py):
             self.options['sourcefile'] = ""
         else:
             self.options['sourcefile'] = "data-sourcefile='%s'" % self.options['sourcefile']
+
+        if 'tie' in self.options:
+            self.options['tie'] = "data-tie='{}'".format(self.options['tie'])
+        else:
+            self.options['tie'] = ""
 
         for opt,tp in [('compileargs','cargs'),('linkargs','largs'),('runargs','rargs'),('interpreterargs','iargs')]:
             if opt in self.options:

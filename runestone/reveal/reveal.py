@@ -23,7 +23,8 @@ from runestone.common.runestonedirective import RunestoneIdDirective, RunestoneN
 def setup(app):
     app.add_directive('reveal', RevealDirective)
 
-    app.add_javascript('reveal.js')
+    app.add_autoversioned_javascript('reveal.js')
+    app.add_autoversioned_stylesheet('reveal.css')
 
     app.add_node(RevealNode, html=(visit_reveal_node, depart_reveal_node))
 
@@ -58,7 +59,7 @@ def depart_reveal_node(self,node):
 
 #Templates to be formatted by node options
 TEMPLATE_START = '''
-    <div data-component="reveal" id="%(divid)s" %(modal)s %(modaltitle)s %(showtitle)s %(hidetitle)s>
+    <div data-component="reveal" id="%(divid)s" %(modal)s %(modaltitle)s %(showtitle)s %(hidetitle)s %(instructoronly)s>
     '''
 TEMPLATE_END = '''
     </div>
@@ -70,6 +71,7 @@ class RevealDirective(RunestoneIdDirective):
    :hidetitle: Text on the 'hide' button--default is "Hide"
    :modal: Boolean--if included, revealed display will be a modal
    :modaltitle: Title of modal dialog window--default is "Message from the author"
+   :instructoronly: Only show button and contents to instructors
 
    Content  everything here will be hidden until revealed
    Content  It can be a lot...
@@ -82,7 +84,9 @@ class RevealDirective(RunestoneIdDirective):
     option_spec.update({"showtitle":directives.unchanged,
                    "hidetitle":directives.unchanged,
                    "modal":directives.flag,
-                   "modaltitle":directives.unchanged})
+                   "modaltitle":directives.unchanged,
+                   "instructoronly": directives.flag
+                   })
 
     def run(self):
         """
@@ -94,6 +98,7 @@ class RevealDirective(RunestoneIdDirective):
             :hidetitle: Text on the 'hide' button--default is "Hide"
             :modal: Boolean--if included, revealed display will be a modal
             :modaltitle: Title of modal dialog window--default is "Message from the author"
+            :instructoronly: only reveal content to instructors
 
             Content
             ...
@@ -109,6 +114,11 @@ class RevealDirective(RunestoneIdDirective):
             self.options['hidetitle'] = 'data-hidetitle="Hide"'
         else:
             self.options['hidetitle'] = '''data-hidetitle=''' + '"' + self.options['hidetitle'] + '"'
+
+        if 'instructoronly' in self.options:
+            self.options['instructoronly'] = '''data-instructoronly style="display: none;"'''
+        else:
+            self.options['instructoronly'] = ""
 
         reveal_node = RevealNode(self.options, rawsource=self.block_text)
         reveal_node.source, reveal_node.line = self.state_machine.get_source_and_line(self.lineno)
