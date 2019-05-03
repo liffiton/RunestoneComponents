@@ -55,6 +55,7 @@ ActiveCode.prototype.init = function(opts) {
     this.graphics = null; // create div for turtle graphics
     this.codecoach = null;
     this.codelens = null;
+    this.eContainer = null;
     this.controlDiv = null;
     this.historyScrubber = null;
     this.timestamps = ["Original"];
@@ -107,9 +108,9 @@ ActiveCode.prototype.createEditor = function (index) {
     this.containerDiv = document.createElement('div');
     var linkdiv = document.createElement('div');
     linkdiv.id = this.divid.replace(/_/g,'-').toLowerCase();  // :ref: changes _ to - so add this as a target
-    $(this.containerDiv).addClass("ac_section alert alert-warning");
+    $(this.containerDiv).addClass("ac_container");
     var codeDiv = document.createElement("div");
-    $(codeDiv).addClass("ac_code_div col-md-12");
+    $(codeDiv).addClass("ac_code_div");
     this.codeDiv = codeDiv;
     this.containerDiv.id = this.divid;
     this.containerDiv.lang = this.language;
@@ -168,7 +169,6 @@ ActiveCode.prototype.createEditor = function (index) {
 ActiveCode.prototype.createControls = function () {
     var ctrlDiv = document.createElement("div");
     $(ctrlDiv).addClass("ac_actions");
-    $(ctrlDiv).addClass("col-md-12");
     // Run
     var butt = document.createElement("button");
     $(butt).text($.i18n("msg_activecode_run_code"));
@@ -372,10 +372,8 @@ ActiveCode.prototype.createControls = function () {
         doc.on('op', updateChatCodesChannels);
     }
 
-
-    $(this.outerDiv).prepend(ctrlDiv);
+    $(this.outerDiv).append(ctrlDiv);
     this.controlDiv = ctrlDiv;
-
 };
 
 // Activecode -- If the code has not changed wrt the scrubber position value then don't save the code or reposition the scrubber
@@ -471,7 +469,7 @@ ActiveCode.prototype.createOutput = function () {
     // to hold turtle graphics output.  We use a div in case the turtle changes from
     // using a canvas to using some other element like svg in the future.
     var outDiv = document.createElement("div");
-    $(outDiv).addClass("ac_output col-md-5");
+    $(outDiv).addClass("ac_output");
     this.outDiv = outDiv;
     this.output = document.createElement('pre');
     this.output.id = this.divid+'_stdout';
@@ -491,28 +489,22 @@ ActiveCode.prototype.createOutput = function () {
     outDiv.appendChild(this.graphics);
     this.outerDiv.appendChild(outDiv);
 
-    var clearDiv = document.createElement("div");
-    $(clearDiv).css("clear","both");  // needed to make parent div resize properly
-    this.outerDiv.appendChild(clearDiv);
-
+    var errorDiv = document.createElement('div');
+    $(errorDiv).css("display","none");
+    $(errorDiv).addClass('ac_error error alert alert-danger');
+    this.eContainer = errorDiv;
+    this.outerDiv.appendChild(errorDiv);
 
     var lensDiv = document.createElement("div");
-    $(lensDiv).addClass("col-md-12");
     $(lensDiv).css("display","none");
+    $(lensDiv).addClass("ac_codelens");
     this.codelens = lensDiv;
     this.outerDiv.appendChild(lensDiv);
 
     var coachDiv = document.createElement("div");
-    $(coachDiv).addClass("col-md-12");
     $(coachDiv).css("display","none");
     this.codecoach = coachDiv;
     this.outerDiv.appendChild(coachDiv);
-
-
-    var clearDiv = document.createElement("div");
-    $(clearDiv).css("clear","both");  // needed to make parent div resize properly
-    this.outerDiv.appendChild(clearDiv);
-
 };
 
 ActiveCode.prototype.disableSaveLoad = function() {
@@ -697,7 +689,7 @@ ActiveCode.prototype.showCodelens = function () {
     var embedUrlStr = srcURL + "#" + $.param(myVars);
     var myIframe = document.createElement('iframe');
     myIframe.setAttribute("id", this.divid + '_codelens');
-    myIframe.setAttribute("width", "800");
+    myIframe.setAttribute("width", "100%");
     myIframe.setAttribute("height", "500");
     myIframe.setAttribute("style", "display:block");
     myIframe.style.background = '#fff';
@@ -734,7 +726,7 @@ ActiveCode.prototype.showCodeCoach = function () {
     srcURL = eBookConfig.app + '/admin/diffviewer?divid=' + div_id;
     myIframe = document.createElement('iframe');
     myIframe.setAttribute("id", div_id + '_coach');
-    myIframe.setAttribute("width", "800px");
+    myIframe.setAttribute("width", "100%");
     myIframe.setAttribute("height", "500px");
     myIframe.setAttribute("style", "display:block");
     myIframe.style.background = '#fff';
@@ -795,11 +787,9 @@ ActiveCode.prototype.toggleEditorVisibility = function () {
 };
 
 ActiveCode.prototype.addErrorMessage = function (err) {
+    $(this.eContainer).empty();
     // Add the error message
     var errHead = $('<h3>').html('Error');
-    this.eContainer = this.outerDiv.appendChild(document.createElement('div'));
-    this.eContainer.className = 'error alert alert-danger';
-    this.eContainer.id = this.divid + '_errinfo';
     this.eContainer.appendChild(errHead[0]);
     var errText = this.eContainer.appendChild(document.createElement('pre'));
 
@@ -834,6 +824,8 @@ ActiveCode.prototype.addErrorMessage = function (err) {
     errFix.innerHTML = errorText[errName + 'Fix'];
     var moreInfo = '../ErrorHelp/' + errName.toLowerCase() + '.html';
     //console.log("Runtime Error: " + err.toString());
+    $(this.outDiv).hide();
+    $(this.eContainer).show();
 };
 
 
@@ -1110,7 +1102,7 @@ ActiveCode.prototype.runProg = function () {
     var scrubber_dfd, history_dfd, skulpt_run_dfd;
     $(this.output).text('');
 
-    $(this.eContainer).remove();
+    $(this.eContainer).hide();
     if (this.codelens) {
         this.codelens.style.display = 'none';
     }
@@ -1135,8 +1127,7 @@ ActiveCode.prototype.runProg = function () {
     $(this.runButton).attr('disabled', 'disabled');
     $(this.historyScrubber).off("slidechange");
     $(this.historyScrubber).slider("disable");
-    $(this.codeDiv).switchClass("col-md-12", "col-md-7", {duration: 500, queue: false});
-    $(this.outDiv).show({duration: 700, queue: false});
+    $(this.outDiv).show({duration: 500, queue: false});
 
     var __ret = this.manage_scrubber(scrubber_dfd, history_dfd, saveCode);
     history_dfd = __ret.history_dfd;
@@ -1252,10 +1243,9 @@ JSActiveCode.prototype.runProg = function() {
     history_dfd = __ret.history_dfd;
     saveCode = __ret.saveCode;
 
-    $(this.eContainer).remove();
+    $(this.eContainer).hide();
     $(this.output).text('');
-    $(this.codeDiv).switchClass("col-md-12","col-md-6",{duration:500,queue:false});
-    $(this.outDiv).show({duration:700,queue:false});
+    $(this.outDiv).show({duration:500,queue:false});
 
     try {
         eval(prog)
@@ -1298,10 +1288,7 @@ HTMLActiveCode.prototype.runProg = function () {
 //    $('#'+myDiv+'_htmlout').append('<iframe class="activehtml" id="' + myDiv + '_iframe" srcdoc="' +
 //        prog.replace(/"/g,"'") + '">' + '</iframe>');
     $(this.output).text('');
-    if (! this.alignVertical ) {
-        $(this.codeDiv).switchClass("col-md-12", "col-md-6", {duration: 500, queue: false});
-    }
-    $(this.outDiv).show({duration:700,queue:false});
+    $(this.outDiv).show({duration:500,queue:false});
     prog = "<script type=text/javascript>window.onerror = function(msg,url,line) {alert(msg+' on line: '+line);};</script>" + prog;
     this.output.srcdoc = prog;
 
@@ -1327,11 +1314,6 @@ HTMLActiveCode.prototype.init = function(opts) {
 HTMLActiveCode.prototype.createOutput = function () {
     var outDiv = document.createElement("div");
     $(outDiv).addClass("ac_output");
-    if(this.alignVertical) {
-        $(outDiv).addClass("col-md-12");
-    } else {
-        $(outDiv).addClass("col-md-5");
-    }
     this.outDiv = outDiv;
     this.output = document.createElement('iframe');
     $(this.output).css("background-color","white");
@@ -1340,11 +1322,6 @@ HTMLActiveCode.prototype.createOutput = function () {
     $(this.output).css("width","100%");
     outDiv.appendChild(this.output);
     this.outerDiv.appendChild(outDiv);
-
-    var clearDiv = document.createElement("div");
-    $(clearDiv).css("clear","both");  // needed to make parent div resize properly
-    this.outerDiv.appendChild(clearDiv);
-
 };
 
 
@@ -2063,8 +2040,7 @@ LiveCode.prototype.runProg_callback = function(data) {
 
         var odiv = this.output;
         $(this.runButton).attr('disabled', 'disabled');
-        $(this.codeDiv).switchClass("col-md-12","col-md-6",{duration:500,queue:false});
-        $(this.outDiv).show({duration:700,queue:false});
+        $(this.outDiv).show({duration:500,queue:false});
         $(this.errDiv).remove();
         $(this.output).css("visibility","visible");
 

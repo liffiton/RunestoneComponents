@@ -35,6 +35,36 @@
 	right:0.5px;
 }
 
+/* Flex, flex-wrap, and order to rearrange things with reasonable
+ * flow at different media sizes. */
+.ac_container {
+    display: flex;
+    flex-wrap: wrap;
+}
+.ac_container .btn {
+    margin: 0.25em;
+}
+.ac_container > div {
+    flex: 0 1 500pt;
+    padding: 0.25em;
+}
+.ac_container > div.ac_output, .ac_container > div.ac_actions {
+    flex: 1 1 200pt;  /* will grow if it can; will wrap if 200pt doesn't fit */
+    max-width: 500pt; /* won't grow beyond 500pt */
+}
+.ac_container > div.ac_codelens {
+    /* give it the full width of the page */
+    flex: 1 1 100%;
+    /* put codelens after controls */
+    order: 100;
+}
+.ac_caption {
+    font-style: italic;
+    font-weight: normal;
+    max-width: 500pt;
+    text-align: center;
+}
+
 
 .ac_actions{
 	text-align: center;
@@ -49,30 +79,8 @@
 	padding: 0;
 	border: 0;
 }
-.ac_section{
-	position: relative;
-	margin-right: auto;
-	margin-left: auto;
-	max-width: 800px;
-	clear:both;
-}
-.ac_section >*:not(.ac_section){
-	max-width: 500pt;
-	margin-left: auto;
-	margin-right: auto;
-	position:relative;
-}
-.ac_section .clearfix{
-	position: initial;
-}
 .ac_output{
 	display:none;
-	max-width: 450px;
-}
-
-.ac_caption {
-    text-align: center;
-    font-weight: bold;
 }
 
 .ac_caption_text {
@@ -93,10 +101,6 @@
 
 .visible-ac-canvas {
     border: 2px solid black;
-}
-
-.ac_section>.col-md-12 {
-	max-width: 100% !important;
 }
 
 .full_width ol {
