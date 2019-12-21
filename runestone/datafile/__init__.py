@@ -15,20 +15,24 @@
 #
 from __future__ import print_function
 
-__author__ = 'isaiahmayerchak'
+__author__ = "isaiahmayerchak"
 
-import os.path
 from docutils import nodes
 from docutils.parsers.rst import directives
 from sqlalchemy import Table
 from runestone.server.componentdb import engine, meta
-from runestone.common.runestonedirective import RunestoneIdDirective, RunestoneNode
+from runestone.common.runestonedirective import (
+    RunestoneIdDirective,
+    RunestoneNode,
+    add_skulpt_js,
+)
 
 
 def setup(app):
-    app.add_directive('datafile',DataFile)
+    app.add_directive("datafile", DataFile)
+    add_skulpt_js(app)
 
-    app.add_autoversioned_stylesheet('datafile.css')
+    app.add_autoversioned_stylesheet("datafile.css")
 
     app.add_node(DataFileNode, html=(visit_df_node, None))
 
@@ -43,14 +47,21 @@ TEMPLATE = """
 
 
 class DataFileNode(nodes.General, nodes.Element, RunestoneNode):
-    pass
+    def __init__(self, content, **kwargs):
+        """
+        Arguments:
+        - `self`:
+        - `content`:
+        """
+        super(DataFileNode, self).__init__(**kwargs)
+        self.df_content = content
 
 
 # self for these functions is an instance of the writer class.  For example
 # in html, self is sphinx.writers.html.SmartyPantsHTMLTranslator
 # The node that is passed as a parameter is an instance of our node class.
 def visit_df_node(self, node):
-    res = TEMPLATE % node['df_content']
+    res = TEMPLATE % node.df_content
 
     self.body.append(res)
 
@@ -67,17 +78,20 @@ class DataFile(RunestoneIdDirective):
    :hide: Flag that sets a non-editable datafile to be hidden
    :fromfile: path to file that contains the data
    """
+
     required_arguments = 1
     optional_arguments = 0
     has_content = True
     option_spec = RunestoneIdDirective.option_spec.copy()
-    option_spec.update({
-        'hide':directives.flag,
-        'edit':directives.flag,
-        'rows':directives.positive_int,
-        'cols':directives.positive_int,
-        'fromfile': directives.unchanged
-    })
+    option_spec.update(
+        {
+            "hide": directives.flag,
+            "edit": directives.flag,
+            "rows": directives.positive_int,
+            "cols": directives.positive_int,
+            "fromfile": directives.unchanged,
+        }
+    )
 
     def run(self):
         """
@@ -94,17 +108,18 @@ class DataFile(RunestoneIdDirective):
         super(DataFile, self).run()
         env = self.state.document.settings.env
 
-        if not hasattr(env,'datafilecounter'):
+        if not hasattr(env, "datafilecounter"):
             env.datafilecounter = 0
         env.datafilecounter += 1
 
         import os
-        if 'fromfile' in self.options:
+
+        if "fromfile" in self.options:
             ffpath = os.path.dirname(self.srcpath)
             print(self.srcpath, os.getcwd())
-            filename = os.path.join(env.srcdir, ffpath, self.options['fromfile'])
-            with open(filename, 'rb') as f:
-                self.content = [x[:-1].decode('utf8') for x in f.readlines()]
+            filename = os.path.join(env.srcdir, ffpath, self.options["fromfile"])
+            with open(filename, "rb") as f:
+                self.content = [x[:-1].decode("utf8") for x in f.readlines()]
 
         if 'cols' in self.options:
             # 1ch char width plus buffer = (cols*2+2)ch width
@@ -129,29 +144,41 @@ class DataFile(RunestoneIdDirective):
         else:
             self.options['hidden_class'] = ""
 
-        if 'edit' in self.options:
-            self.options['edit'] = "true"
+        if "edit" in self.options:
+            self.options["edit"] = "true"
         else:
-            self.options['edit'] = "false"
+            self.options["edit"] = "false"
 
         if engine:
-            Source_code = Table('source_code', meta, autoload=True, autoload_with=engine)
-            course_name = env.config.html_context['course_id']
-            divid = self.options['divid']
+            Source_code = Table(
+                "source_code", meta, autoload=True, autoload_with=engine
+            )
+            course_name = env.config.html_context["course_id"]
+            divid = self.options["divid"]
 
-            engine.execute(Source_code.delete().where(Source_code.c.acid == divid).where(Source_code.c.course_id == course_name))
-            engine.execute(Source_code.insert().values(
-                acid=divid,
-                course_id=course_name,
-                main_code=source,
-            ))
+            engine.execute(
+                Source_code.delete()
+                .where(Source_code.c.acid == divid)
+                .where(Source_code.c.course_id == course_name)
+            )
+            engine.execute(
+                Source_code.insert().values(
+                    acid=divid, course_id=course_name, main_code=source
+                )
+            )
         else:
-            print("Unable to save to source_code table in datafile__init__.py. Possible problems:")
+            print(
+                "Unable to save to source_code table in datafile__init__.py. Possible problems:"
+            )
             print("  1. dburl or course_id are not set in conf.py for your book")
             print("  2. unable to connect to the database using dburl")
             print()
-            print("This should only affect the grading interface. Everything else should be fine.")
+            print(
+                "This should only affect the grading interface. Everything else should be fine."
+            )
 
-        data_file_node = DataFileNode(df_content=self.options, rawsource=self.block_text)
-        data_file_node.source, data_file_node.line = self.state_machine.get_source_and_line(self.lineno)
+        data_file_node = DataFileNode(self.options, rawsource=self.block_text)
+        data_file_node.source, data_file_node.line = self.state_machine.get_source_and_line(
+            self.lineno
+        )
         return [data_file_node]

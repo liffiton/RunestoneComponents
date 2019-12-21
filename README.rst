@@ -1,10 +1,6 @@
 RunestoneComponents
 ===================
 
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/RunestoneInteractive/RunestoneComponents
-   :target: https://gitter.im/RunestoneInteractive/RunestoneComponents?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-
 .. image:: https://img.shields.io/pypi/v/Runestone.svg
    :target: https://pypi.python.org/pypi/Runestone
    :alt: PyPI Version
@@ -13,14 +9,16 @@ RunestoneComponents
    :target: https://pypi.python.org/pypi/Runestone
    :alt: PyPI Monthly downloads
 
-.. image:: http://bnmnetp.me:8088/buildStatus/icon?job=RunestoneComponents&build=9
+.. image:: https://travis-ci.com/RunestoneInteractive/RunestoneComponents.svg?branch=master
+    :target: https://travis-ci.com/RunestoneInteractive/RunestoneComponents
+
 
 Packaging of the Runestone components for publishing educational materials using Sphinx and restructuredText. Check out the `Overview <http://interactivepython.org/runestone/static/overview/overview.html>`_ To see all of the extensions in action.
 
 Documentation
 -------------
 
-You will find the new Authors Guide `here <https://runestone.academy/runestone/static/authorguide/index.html>`_
+You will find the new `Authors Guide <https://runestone.academy/runestone/static/authorguide/index.html>`_
 
 If you want to report any issues with the docs or submit PRs to improve them please do so on `github <https://github.com/RunestoneInteractive/runestoneinteractive.github.io/issues>`_
 
@@ -79,20 +77,16 @@ To build the included default project run
 
     runestone build
 
-You will now have a build folder with a file index.html in it, along with some default content.  The contents of the build folder are suitable for hosting anywhere that you can serve static web content from!  For a small class you could even serve the content using the builtin Python webserver.
-
 *Note:* If you come across version conflict with ``six`` library while building the project, ``pip install --ignore-installed six`` command might be useful.
 
-::
+You will now have a build folder with a file index.html in it, along with some default content.  The contents of the build folder are suitable for hosting anywhere that you can serve static web content from!  For a small class you could even serve the content using the provided Python webserver::
 
     $ runestone serve
 
-
 Now from your browser you can open up ``http://localhost:8000/index.html``  You should see the table of contents for a sample page like this:
 
-.. raw:: html
-
-    <img src="images/runeCompo-index.png" height="400" width="370">
+.. image:: images/runeCompo-index.png
+    :width: 370
 
 
 If you edit ``_sources/index.html`` or ``_sources/overview.rst`` and then rebuild and serve again you will see your changes.  The best documentation is probably the overview.rst file itself, as it demonstrates how to use all of the common components and shows most of their options.
@@ -180,7 +174,7 @@ If you have an error relating to PhantomJS/a driver in the output, you probably 
 
 * Write the appropriate directive example(s) inside the ``index.rst`` file (which will be created as a result of ``runestone init``)
 
-* Edit the Python file you created as appropriate (see documentation for the Python ``unittest`` module `here <https://docs.python.org/2/library/unittest.html>`_.)
+* Edit the Python file you created as appropriate (see documentation for the Python ``unittest`` module `In the Python docs <https://docs.python.org/2/library/unittest.html>`_.)
 
 
 Notes for more Advanced Users
@@ -194,3 +188,28 @@ If you already have an existing `Sphinx <http://sphinx-doc.org>`_  project and y
 
 
 See https://github.com/bnmnetp/runestone/wiki/DevelopmentRoadmap to get a sense for how this is all going to come together.
+
+Researchers
+-----------
+
+If you use Runestone in your Research or write about it, please reference ``https://runestone.academy`` and cite this paper:
+
+::
+
+   @inproceedings{Miller:2012:BPE:2325296.2325335,
+    author = {Miller, Bradley N. and Ranum, David L.},
+    title = {Beyond PDF and ePub: Toward an Interactive Textbook},
+    booktitle = {Proceedings of the 17th ACM Annual Conference on Innovation and Technology in Computer Science Education},
+    series = {ITiCSE '12},
+    year = {2012},
+    isbn = {978-1-4503-1246-2},
+    location = {Haifa, Israel},
+    pages = {150--155},
+    numpages = {6},
+    url = {http://doi.acm.org/10.1145/2325296.2325335},
+    doi = {10.1145/2325296.2325335},
+    acmid = {2325335},
+    publisher = {ACM},
+    address = {New York, NY, USA},
+    keywords = {cs1, ebook, sphinx},
+   }

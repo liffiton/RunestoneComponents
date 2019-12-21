@@ -1,10 +1,9 @@
 click
 Paver>=1.2.4
-six
-Sphinx>=1.8.5
+six>1.12
+Sphinx>=2.0.0
 sphinxcontrib-paverutils>=1.17
 cogapp>=2.5
 SQLAlchemy>=1.0.13
-selenium>=2.53.6
-pyvirtualdisplay
-urllib3==1.21.1
+# CodeChat is Python 3 only.
+CodeChat; python_version != '2.7'
