@@ -35,6 +35,10 @@
 	right:0.5px;
 }
 
+.ac_code_div > div.CodeMirror {
+    border: 2px solid #aaa;
+}
+
 /* Flex, flex-wrap, and order to rearrange things with reasonable
  * flow at different media sizes. */
 .ac_container {
@@ -45,25 +49,33 @@
     margin: 0.25em;
 }
 .ac_container > div {
-    flex: 0 1 500pt;
+    flex: 1 1 200pt;
     padding: 0.25em;
-}
-.ac_container > div.ac_output, .ac_container > div.ac_actions {
-    flex: 1 1 200pt;  /* will grow if it can; will wrap if 200pt doesn't fit */
     max-width: 500pt; /* won't grow beyond 500pt */
+}
+.ac_container > div.ac_actions {
+    break-before: always;
+    break-after: always;
 }
 .ac_container > div.ac_codelens {
     /* give it the full width of the page */
     flex: 1 1 100%;
-    /* put codelens after controls */
-    order: 100;
+    max-width: none;
 }
 .ac_caption {
     font-style: italic;
     font-weight: normal;
+    flex: 1 1 200pt;  /* will grow if it can; will wrap if 200pt doesn't fit */
     max-width: 500pt;
     text-align: center;
 }
+/* Ordering, because it's a pain to hack the existing JS to put things in the right place */
+.ac_container > .ac_code_div { order: 10; }
+.ac_container > .ac_output   { order: 20; }
+.ac_container > .error       { order: 30; }
+.ac_container > .ac_actions  { order: 40; }
+.ac_container > .ac_caption  { order: 50; }
+.ac_container > .ac_codelens { order: 60; }
 
 
 .ac_actions{
@@ -83,11 +95,8 @@
 	display:none;
 }
 
-.ac_caption_text {
-    font-weight: normal;
-}
 .ac_caption:before {
-    content: "ActiveCode: " counter(activecode) " ";
+    content: "ActiveCode " counter(activecode) ": ";
     counter-increment: activecode;
 }
 

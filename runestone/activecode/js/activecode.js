@@ -98,7 +98,7 @@ ActiveCode.prototype.init = function(opts) {
     } else {
         this.caption = "ActiveCode"
     }
-    this.addCaption('runestone');
+    this.addCaption('ac');
     this.addJSONLibrary();
 
     if (this.autorun) {
@@ -108,8 +108,8 @@ ActiveCode.prototype.init = function(opts) {
 
 ActiveCode.prototype.createEditor = function (index) {
     this.containerDiv = document.createElement('div');
-    var linkdiv = document.createElement('div');
-    linkdiv.id = this.divid.replace(/_/g,'-').toLowerCase();  // :ref: changes _ to - so add this as a target
+    var linktgt = document.createElement('a');
+    linktgt.id = this.divid.replace(/_/g,'-').toLowerCase();  // :ref: changes _ to - so add this as a target
     $(this.containerDiv).addClass("ac_container");
     var codeDiv = document.createElement("div");
     $(codeDiv).addClass("ac_code_div");
@@ -119,8 +119,8 @@ ActiveCode.prototype.createEditor = function (index) {
     this.outerDiv = this.containerDiv;
 
     $(this.origElem).replaceWith(this.containerDiv);
-    if (linkdiv.id !== this.divid) {  // Don't want the 'extra' target if they match.
-        this.containerDiv.appendChild(linkdiv);
+    if (linktgt.id !== this.divid) {  // Don't want the 'extra' target if they match.
+        this.containerDiv.appendChild(linktgt);
     }
     this.containerDiv.appendChild(codeDiv);
     var edmode = this.containerDiv.lang;
@@ -197,7 +197,7 @@ ActiveCode.prototype.createControls = function () {
     if (this.enabledownload || eBookConfig.downloadsEnabled) {
       var butt = document.createElement("button");
       $(butt).text("Download");
-      $(butt).addClass("btn save-button");
+      $(butt).addClass("ac_opt btn btn-default");
       ctrlDiv.appendChild(butt);
       this.downloadButton = butt;
       $(butt).click(this.downloadFile.bind(this, this.language));
@@ -221,7 +221,6 @@ ActiveCode.prototype.createControls = function () {
         butt = document.createElement("button");
         $(butt).addClass("ac_opt btn btn-default");
         $(butt).text($.i18n("msg_activecode_show_feedback"));
-        $(butt).css("margin-left","10px");
         $(butt).attr("type","button")
         this.gradeButton = butt;
         ctrlDiv.appendChild(butt);
@@ -233,7 +232,6 @@ ActiveCode.prototype.createControls = function () {
         butt = document.createElement("button");
         $(butt).addClass("ac_opt btn btn-default");
         $(butt).text($.i18n("msg_activecode_show_code"));
-        $(butt).css("margin-left", "10px");
         $(butt).attr("type","button")
         this.showHideButt = butt;
         ctrlDiv.appendChild(butt);
@@ -262,7 +260,6 @@ ActiveCode.prototype.createControls = function () {
         butt = document.createElement("button");
         $(butt).addClass("ac_opt btn btn-default");
         $(butt).text($.i18n("msg_activecode_show_codelens"));
-        $(butt).css("margin-left", "10px");
         this.clButton = butt;
         ctrlDiv.appendChild(butt);
         $(butt).click(this.showCodelens.bind(this));
@@ -294,7 +291,6 @@ ActiveCode.prototype.createControls = function () {
         butt = document.createElement("button");
         $(butt).addClass("ac_opt btn btn-default");
         $(butt).text($.i18n("msg_activecode_audio_tour"));
-        $(butt).css("margin-left", "10px");
         this.atButton = butt;
         ctrlDiv.appendChild(butt);
         $(butt).click((function() {new AudioTour(this.divid, this.code, 1, $(this.origElem).data("audio"))}).bind(this));
@@ -304,7 +300,6 @@ ActiveCode.prototype.createControls = function () {
         let butt = document.createElement("button");
         $(butt).addClass("btn btn-info");
         $(butt).text("Share Code");
-        $(butt).css("margin-left", "10px");
         this.shareButt = butt;
         ctrlDiv.appendChild(butt);
         $(butt).click((function() {
@@ -382,7 +377,6 @@ ActiveCode.prototype.createControls = function () {
         butt = document.createElement("a");
         $(butt).addClass("ac_opt btn btn-default");
         $(butt).text("Create Channel");
-        $(butt).css("margin-left","10px");
         $(butt).attr("type","button")
         $(butt).attr("target","_blank")
         $(butt).attr("href", 'http://'+chatcodesServer+"/new?"+$.param({
@@ -442,11 +436,13 @@ ActiveCode.prototype.addHistoryScrubber = function (pos_last) {
     var helper = function() {
         console.log("making a new scrubber");
         var scrubberDiv = document.createElement("div");
-        $(scrubberDiv).css("display","inline-block");
-        $(scrubberDiv).css("margin-left","10px");
-        $(scrubberDiv).css("margin-right","10px");
-        $(scrubberDiv).css({"min-width": "200px",
-            "max-width": "300px"});
+        $(scrubberDiv).css({
+            "display": "inline-block",
+            "min-width": "200px",
+            "max-width": "300px",
+            "margin": "0 1em",
+            "vertical-align": "middle"
+        });
         var scrubber = document.createElement("div");
         this.timestampP = document.createElement("span");
         this.slideit = function() {
@@ -461,7 +457,6 @@ ActiveCode.prototype.addHistoryScrubber = function (pos_last) {
             max: this.history.length-1,
             value: this.history.length-1,
         });
-        $(scrubber).css('margin','10px');
         $(scrubber).on("slide",this.slideit.bind(this));
         $(scrubber).on("slidechange",this.slideit.bind(this));
         scrubberDiv.appendChild(scrubber);
@@ -537,10 +532,6 @@ ActiveCode.prototype.createOutput = function () {
     $(this.graphics).on("DOMNodeInserted", 'canvas', (function(e) {
         $(this.graphics).addClass("visible-ac-canvas");
     }).bind(this));
-
-    var clearDiv = document.createElement("div");
-    $(clearDiv).css("clear","both");  // needed to make parent div resize properly
-    this.outerDiv.appendChild(clearDiv);
 
     outDiv.appendChild(this.output);
     outDiv.appendChild(this.graphics);
@@ -732,10 +723,10 @@ ActiveCode.prototype.showCodelens = function () {
     }
 
     myVars.curInstr = 0;
-    myVars.codeDivWidth = 350;
-    myVars.codeDivHeight = 400;
+    myVars.codeDivWidth = 450;
+    myVars.codeDivHeight = 450;
     var srcURL = 'https://pythontutor.com/iframe-embed.html';
-    var embedUrlStr = $.param.fragment(srcURL, myVars, 2 /* clobber all */);
+    var embedUrlStr = srcURL + "#" + $.param(myVars);
     var myIframe = document.createElement('iframe');
     myIframe.setAttribute("id", this.divid + '_codelens');
     myIframe.setAttribute("width", "100%");
@@ -836,9 +827,11 @@ ActiveCode.prototype.toggleEditorVisibility = function () {
 };
 
 ActiveCode.prototype.addErrorMessage = function (err) {
-    $(this.eContainer).empty();
     // Add the error message
     var errHead = $('<h3>').html('Error');
+    this.eContainer = this.outerDiv.appendChild(document.createElement('div'));
+    this.eContainer.className = 'error alert alert-danger';
+    this.eContainer.id = this.divid + '_errinfo';
     this.eContainer.appendChild(errHead[0]);
     var errText = this.eContainer.appendChild(document.createElement('pre'));
 
