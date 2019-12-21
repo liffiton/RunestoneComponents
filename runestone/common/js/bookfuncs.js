@@ -215,7 +215,6 @@ function setupNavbarLoggedOut() {
     $('#passwordlink').hide();
     $('#ip_dropdown_link').hide();
     $('li.loginout').html('<a href="' + eBookConfig.app + '/default/user/login">Login</a>')
-    $(".footer").html('user not logged in');
 }
 $(document).bind("runestone:logout",setupNavbarLoggedOut);
 
