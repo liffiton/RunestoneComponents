@@ -54,8 +54,9 @@
     max-width: 500pt; /* won't grow beyond 500pt */
 }
 .ac_container > div.ac_actions {
-    break-before: always;
-    break-after: always;
+    /* Make this one take the full width so it's on a line by itself. */
+    flex: 1 1 100%;
+    max-width: none;
 }
 .ac_container > div.ac_codelens {
     /* give it the full width of the page */
@@ -78,8 +79,9 @@
 .ac_container > .ac_codelens { order: 60; }
 
 
-.ac_actions{
+.ac_actions_inner {
 	text-align: center;
+    max-width: 500pt;
 }
 
 .ac_sep {

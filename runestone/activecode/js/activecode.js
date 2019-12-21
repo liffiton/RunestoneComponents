@@ -58,7 +58,6 @@ ActiveCode.prototype.init = function(opts) {
     this.codecoach = null;
     this.codelens = null;
     this.eContainer = null;
-    this.controlDiv = null;
     this.historyScrubber = null;
     this.timestamps = ["Original"];
     this.autorun = $(orig).data('autorun');
@@ -184,7 +183,6 @@ ActiveCode.prototype.createEditor = function (index) {
 
 ActiveCode.prototype.createControls = function () {
     var ctrlDiv = document.createElement("div");
-    $(ctrlDiv).addClass("ac_actions");
     // Run
     var butt = document.createElement("button");
     $(butt).text($.i18n("msg_activecode_run_code"));
@@ -411,8 +409,14 @@ ActiveCode.prototype.createControls = function () {
         doc.on('op', updateChatCodesChannels);
     }
 
-    $(this.outerDiv).append(ctrlDiv);
-    this.controlDiv = ctrlDiv;
+    // wrap it in an outer div so we can make it work with the flex layout...
+    // Outer div will be width: 100%, inner will have "normal" width with centering,
+    // to be centered with the rest of the text.
+    $(ctrlDiv).addClass("ac_actions_inner");
+    var ctrlOuterDiv = document.createElement("div");
+    $(ctrlOuterDiv).addClass("ac_actions");
+    $(ctrlOuterDiv).append(ctrlDiv);
+    $(this.outerDiv).append(ctrlOuterDiv);
 };
 
 ActiveCode.prototype.enableSaveLoad = function () {
