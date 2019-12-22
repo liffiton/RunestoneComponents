@@ -521,11 +521,11 @@ ActiveCode.prototype.createOutput = function () {
     // to hold turtle graphics output.  We use a div in case the turtle changes from
     // using a canvas to using some other element like svg in the future.
     var outDiv = document.createElement("div");
-    $(outDiv).addClass("ac_output col-md-12");
+    $(outDiv).addClass("ac_output");
     this.outDiv = outDiv;
     this.output = document.createElement('pre');
     this.output.id = this.divid+'_stdout';
-    $(this.output).css("visibility","hidden");
+    $(this.output).hide();
 
     this.graphics = document.createElement('div');
     this.graphics.id = this.divid + "_graphics";
@@ -1023,7 +1023,7 @@ ActiveCode.prototype.outputfun = function(text) {
             }
         }
     }
-    $(this.output).css("visibility","visible");
+    $(this.output).show();
     text = x;
     text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>");
         $(this.output).append(text);
@@ -1033,19 +1033,21 @@ ActiveCode.prototype.filewriter = function(fobj, bytes) {
     let filecomponent = document.getElementById(fobj.name);
     if (! filecomponent) {
         let container = document.createElement('div')
-        $(container).addClass('runestone')
+        $(container).addClass('ac_fileout')
         let tab = document.createElement('div');
         $(tab).addClass('datafile_caption');
         tab.innerHTML = `Data file: <code>${fobj.name}</code>`;
         filecomponent = document.createElement('textarea')
-        filecomponent.rows = 10;
+        filecomponent.rows = 2;
         filecomponent.cols = 50;
         filecomponent.id = fobj.name;
         $(filecomponent).css('margin-bottom','5px');
         $(filecomponent).addClass('ac_output');
         container.appendChild(tab);
         container.appendChild(filecomponent);
-        this.outerDiv.appendChild(container)
+
+        // put it in the same div with stdout and the turtle canvas
+        this.outDiv.appendChild(container)
     } else {
         if (fobj.pos$ == 0) {
             $(filecomponent).val("")
@@ -1054,7 +1056,11 @@ ActiveCode.prototype.filewriter = function(fobj, bytes) {
 
     let current = $(filecomponent).val()
     current = current + bytes.v;
+    
+    var numrows = current.split("\n").length;
+
     $(filecomponent).val(current);
+    $(filecomponent).attr('rows', numrows);
     $(filecomponent).css('display', 'block');
     fobj.pos$ = current.length;
 
@@ -1257,7 +1263,7 @@ JSActiveCode.prototype.init = function(opts) {
     };
 
 JSActiveCode.prototype.outputfun = function (a) {
-    $(this.output).css("visibility","visible");
+    $(this.output).show();
     var str = "[";
     if (typeof(a) == "object" && a.length) {
         for (var i = 0; i < a.length; i++)
@@ -2106,7 +2112,7 @@ LiveCode.prototype.runProg_callback = function(data) {
         $(this.runButton).attr('disabled', 'disabled');
         $(this.outDiv).show({duration:700,queue:false});
         $(this.errDiv).remove();
-        $(this.output).css("visibility","visible");
+        $(this.output).show();
 
         xhr.open("POST", host, true);
         xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
@@ -2494,7 +2500,7 @@ SQLActiveCode.prototype.runProg = function()  {
     } catch(error) {
         result_mess = error.toString();
         $(this.output).text(error);
-        $(this.output).css("visibility","visible");
+        $(this.output).show();
         $(this.outDiv).show();
     }
     this.logRunEvent({

@@ -66,7 +66,7 @@
 .ac_caption {
     font-style: italic;
     font-weight: normal;
-    flex: 1 1 200pt;  /* will grow if it can; will wrap if 200pt doesn't fit */
+    flex: 1 1 250pt;  /* will grow if it can; will wrap if 250pt doesn't fit */
     max-width: 500pt;
     text-align: center;
 }
