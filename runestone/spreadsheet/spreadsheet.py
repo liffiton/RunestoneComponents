@@ -37,12 +37,12 @@ def setup(app):
     app.add_directive("spreadsheet", SpreadSheet)
 
     app.add_autoversioned_javascript("spreadsheet.js")
-    app.add_javascript("jexcel.js")
-    app.add_javascript("japp.js")
+    app.add_js_file("jexcel.js")
+    app.add_js_file("japp.js")
 
     app.add_autoversioned_stylesheet("spreadsheet.css")
-    app.add_stylesheet("jexcel.css")
-    app.add_stylesheet("japp.css")
+    app.add_css_file("jexcel.css")
+    app.add_css_file("japp.css")
 
     app.add_node(SpreadSheetNode, html=(visit_ss_node, depart_ss_node))
 
